@@ -1,4 +1,5 @@
 ```mermaid
+
 sequenceDiagram
     participant user
     participant browser
@@ -43,6 +44,7 @@ sequenceDiagram
 ```
 
 ```mermaid
+
 sequenceDiagram
     participant user
     participant browser
@@ -76,6 +78,7 @@ sequenceDiagram
 ```
 
 ```mermaid
+
 sequenceDiagram
     participant user
     participant browser
