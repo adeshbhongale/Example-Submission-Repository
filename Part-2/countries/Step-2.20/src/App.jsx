@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import './index.css';
+import CountryInfo from './components/CountryInfo';
 
 // Use the environment variable for the API key
 const OPENWEATHER_API_KEY = '29e80a202c5b39dff413fcd5a4f128ca';
@@ -102,40 +103,12 @@ function App() {
       ) : countryList.length > 10 ? (
         <div>Too many matches, specify another filter</div>
       ) : activeCountry ? (
-        <div style={{ padding: 20, margin: 20 }}>
-          <h2>{activeCountry.name.common}</h2>
-          <p><strong>Capital:</strong> {activeCountry.capital?.join(', ') || 'N/A'}</p>
-          <p><strong>Area:</strong> {activeCountry.area} km²</p>
-          <h4>Languages:</h4>
-          <ul>
-            {Object.values(activeCountry.languages || {}).map(lang => (
-              <li key={lang}>{lang}</li>
-            ))}
-          </ul>
-          <img
-            src={activeCountry.flags?.png}
-            alt={`Flag of ${activeCountry.name.common}`}
-            className="flag-img"
-            style={{ border: '2px solid black', borderRadius: '4px', width: '200px' }}
-          />
-          {/* Weather Section */}
-          {weatherLoading && <p>Loading weather...</p>}
-          {weatherError && <p style={{ color: 'red' }}>{weatherError}</p>}
-          {weatherData && !weatherLoading && !weatherError && (
-            <div style={{ marginTop: '20px' }}>
-              <h4>Weather in {activeCountry.capital[0]}</h4>
-              <p><strong>Temperature:</strong> {weatherData.main.temp} °C</p>
-              <p><strong>Weather:</strong> {weatherData.weather[0].description}</p>
-              <img
-                src={`https://openweathermap.org/img/wn/${weatherData.weather[0].icon}@2x.png`}
-                alt={weatherData.weather[0].description}
-                className="weather-icon"
-                style={{ width: '80px', height: '80px' }}
-              />
-              <p><strong>Wind:</strong> {weatherData.wind.speed} m/s</p>
-            </div>
-          )}
-        </div>
+        <CountryInfo
+          country={activeCountry}
+          weatherLoading={weatherLoading}
+          weatherError={weatherError}
+          weatherData={weatherData}
+        />
       ) : countryList.length > 1 ? (
         <ul>
           {countryList.map(country => (
@@ -151,40 +124,12 @@ function App() {
           ))}
         </ul>
       ) : countryList.length === 1 ? (
-        <div style={{ padding: 20, margin: 20 }}>
-          <h2>{countryList[0].name.common}</h2>
-          <p><strong>Capital:</strong> {countryList[0].capital?.join(', ') || 'N/A'}</p>
-          <p><strong>Area:</strong> {countryList[0].area} km²</p>
-          <h4>Languages:</h4>
-          <ul>
-            {Object.values(countryList[0].languages || {}).map(lang => (
-              <li key={lang}>{lang}</li>
-            ))}
-          </ul>
-          <img
-            src={countryList[0].flags?.png}
-            alt={`Flag of ${countryList[0].name.common}`}
-            className="flag-img"
-            style={{ border: '2px solid black', borderRadius: '4px', width: '200px' }}
-          />
-          {/* Weather Section */}
-          {weatherLoading && <p>Loading weather...</p>}
-          {weatherError && <p style={{ color: 'red' }}>{weatherError}</p>}
-          {weatherData && !weatherLoading && !weatherError && (
-            <div style={{ marginTop: '20px' }}>
-              <h4>Weather in {countryList[0].capital[0]}</h4>
-              <p><strong>Temperature:</strong> {weatherData.main.temp} °C</p>
-              <p><strong>Weather:</strong> {weatherData.weather[0].description}</p>
-              <img
-                src={`https://openweathermap.org/img/wn/${weatherData.weather[0].icon}@2x.png`}
-                alt={weatherData.weather[0].description}
-                className="weather-icon"
-                style={{ width: '80px', height: '80px' }}
-              />
-              <p><strong>Wind:</strong> {weatherData.wind.speed} m/s</p>
-            </div>
-          )}
-        </div>
+        <CountryInfo
+          country={countryList[0]}
+          weatherLoading={weatherLoading}
+          weatherError={weatherError}
+          weatherData={weatherData}
+        />
       ) : null}
     </div>
   );
