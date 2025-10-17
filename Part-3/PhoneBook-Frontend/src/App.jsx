@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import personsService from './persons'
+import personsService from './service/persons'
 import Notification from './component/Notification'
 import Filter from './component/Filter'
 import PersonForm from './component/PersonForm'
