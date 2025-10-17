@@ -31,10 +31,11 @@ const App = () => {
         `${existingPerson.name} is already added to phonebook, replace the old number with a new one?`
       )) {
         const updatedPerson = { ...existingPerson, number: newNumber }
+        const id = existingPerson._id || existingPerson.id
         personsService
-          .update(existingPerson.id, updatedPerson)
+          .update(id, updatedPerson)
           .then(returnedPerson => {
-            setPersons(persons.map(p => p.id !== existingPerson.id ? p : returnedPerson))
+            setPersons(persons.map(p => (p._id || p.id) !== id ? p : returnedPerson))
             setNotification({ message: `Updated ${returnedPerson.name}'s number`, type: 'success' })
             setTimeout(() => setNotification({ message: null, type: null }), 4000)
             setNewName('')
@@ -43,7 +44,7 @@ const App = () => {
           .catch(error => {
             setNotification({ message: `Information of ${existingPerson.name} has already been removed from server`, type: 'error' })
             setTimeout(() => setNotification({ message: null, type: null }), 4000)
-            setPersons(persons.filter(p => p.id !== existingPerson.id))
+            setPersons(persons.filter(p => (p._id || p.id) !== id))
           })
       }
       return
@@ -62,7 +63,10 @@ const App = () => {
         setNewNumber('')
       })
       .catch(error => {
-        setNotification({ message: 'Failed to add person', type: 'error' })
+        const errorMsg = error.response && error.response.data && error.response.data.error
+          ? error.response.data.error
+          : 'Failed to add person';
+        setNotification({ message: errorMsg, type: 'error' })
         setTimeout(() => setNotification({ message: null, type: null }), 4000)
       })
   }
@@ -71,14 +75,14 @@ const App = () => {
     if (window.confirm(`Delete ${name}?`)) {
       personsService.remove(id)
         .then(() => {
-          setPersons(persons.filter(p => p.id !== id))
+          setPersons(persons.filter(p => (p._id || p.id) !== id))
           setNotification({ message: `Deleted ${name}`, type: 'success' })
           setTimeout(() => setNotification({ message: null, type: null }), 4000)
         })
         .catch(error => {
           setNotification({ message: `Information of ${name} has already been removed from server`, type: 'error' })
           setTimeout(() => setNotification({ message: null, type: null }), 4000)
-          setPersons(persons.filter(p => p.id !== id))
+          setPersons(persons.filter(p => (p._id || p.id) !== id))
         })
     }
   }
