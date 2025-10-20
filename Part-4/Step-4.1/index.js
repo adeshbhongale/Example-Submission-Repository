@@ -1,5 +1,7 @@
 const express = require('express')
 const mongoose = require('mongoose')
+const dotenv = require('dotenv')
+dotenv.config()
 
 const app = express()
 
@@ -12,7 +14,7 @@ const blogSchema = mongoose.Schema({
 
 const Blog = mongoose.model('Blog', blogSchema)
 
-const mongoUrl = 'mongodb://localhost/bloglist'
+const mongoUrl = process.env.MONGODB_URI
 mongoose.connect(mongoUrl)
 
 app.use(express.json())

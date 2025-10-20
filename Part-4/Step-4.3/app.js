@@ -1,10 +1,13 @@
 const express = require('express')
 const mongoose = require('mongoose')
+const dotenv = require('dotenv')
+dotenv.config()
+
 const blogsRouter = require('./controllers/blogs')
 
 const app = express()
 
-const mongoUrl = 'mongodb+srv://adeshbhongale03:Password@cluster1.xsnemxy.mongodb.net/BlogsApp?retryWrites=true&w=majority&appName=Cluster1'
+const mongoUrl = process.env.MONGODB_URI
 mongoose.connect(mongoUrl)
   .then(() => console.log('Connected to MongoDB'))
   .catch(error => console.log('Error connecting to MongoDB:', error.message))
