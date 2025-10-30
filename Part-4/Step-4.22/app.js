@@ -9,8 +9,12 @@ if (process.env.NODE_ENV === 'test') {
 }
 
 
+
+
 const blogsRouter = require('./controllers/blogs')
 const usersRouter = require('./controllers/users')
+const loginRouter = require('./controllers/login')
+const { tokenExtractor, userExtractor } = require('./middleware/tokenExtractor')
 
 const app = express()
 
@@ -19,9 +23,11 @@ mongoose.connect(mongoUrl)
   .then(() => console.log('Connected to MongoDB'))
   .catch(error => console.log('Error connecting to MongoDB:', error.message))
 
-app.use(express.json())
 
-app.use('/api/blogs', blogsRouter)
+app.use(express.json())
+app.use(tokenExtractor)
+app.use('/api/blogs', userExtractor, blogsRouter)
 app.use('/api/users', usersRouter)
+app.use('/api/login', loginRouter)
 
 module.exports = app
