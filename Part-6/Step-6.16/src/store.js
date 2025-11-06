@@ -1,15 +1,11 @@
-import { configureStore } from '@reduxjs/toolkit'
+import { createStore, applyMiddleware } from 'redux'
+import thunk from 'redux-thunk'
 
-import anecdoteReducer from './reducers/anecdoteReducer'
-import filterReducer from './reducers/filterReducer'
-import notificationReducer from './reducers/notificationReducer'
+import rootReducer from './reducers'
 
-const store = configureStore({
-  reducer: {
-    anecdotes: anecdoteReducer,
-    filter: filterReducer,
-    notification: notificationReducer,
-  },
-})
+const store = createStore(
+  rootReducer,
+  applyMiddleware(thunk)
+)
 
 export default store
