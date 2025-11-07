@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useContext } from 'react'
-import { createAnecdote } from '../requests'
+import { createAnecdote } from '../requests.js'
 import { NotificationContext } from '../NotificationContext.jsx'
 
 

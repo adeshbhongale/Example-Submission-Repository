@@ -1,8 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useContext } from 'react'
-import { getAnecdotes, updateAnecdote } from './requests'
-import AnecdoteForm from './components/AnecdoteForm'
-import Notification from './components/Notification'
+import { getAnecdotes, updateAnecdote } from './requests.js'
+import AnecdoteForm from './components/AnecdoteForm.jsx'
+import Notification from './components/Notification.jsx'
 import { NotificationContext } from './NotificationContext.jsx'
 
 
