@@ -15,6 +15,7 @@ if (process.env.NODE_ENV === 'test') {
 const blogsRouter = require('./controllers/blogs')
 const usersRouter = require('./controllers/users')
 const loginRouter = require('./controllers/login')
+const testingRouter = require('./controllers/testing')
 const { tokenExtractor, userExtractor } = require('./middleware/tokenExtractor')
 
 const app = express()
@@ -31,5 +32,8 @@ app.use(tokenExtractor)
 app.use('/api/blogs', userExtractor, blogsRouter)
 app.use('/api/users', usersRouter)
 app.use('/api/login', loginRouter)
+if (process.env.NODE_ENV === 'test') {
+  app.use('/api/testing', testingRouter)
+}
 
 module.exports = app
