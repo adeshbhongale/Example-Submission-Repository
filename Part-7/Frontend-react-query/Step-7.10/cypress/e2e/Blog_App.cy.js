@@ -44,10 +44,6 @@ describe('Blogs ordered by likes', function () {
           created.push(res.body)
         })
       }).then(() => {
-        // after creation, update likes using API directly:
-        // First Blog -> 1 like
-        // Second Blog -> 2 likes
-        // Third Blog -> 3 likes
         const first = created.find(c => c.title === 'First the Blog')
         const second = created.find(c => c.title === 'Second the Blog')
         const third = created.find(c => c.title === 'Third the Blog')

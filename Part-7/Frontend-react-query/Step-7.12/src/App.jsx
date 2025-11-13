@@ -35,12 +35,12 @@ const App = () => {
     onSuccess: (newBlog) => {
       const blogs = queryClient.getQueryData(['blogs'])
       queryClient.setQueryData(['blogs'], blogs.concat(newBlog))
-      notify(`a new blog ${newBlog.title} by ${newBlog.author} added`)
+      notify(`a new blog ${newBlog.title} by ${newBlog.author} added`, 'success')
       setTimeout(() => clear(), 5000)
       blogFormRef.current.toggleVisibility()
     },
     onError: () => {
-      notify('Error creating blog')
+      notify('Error creating blog', 'error')
       setTimeout(() => clear(), 5000)
     }
   })
@@ -53,10 +53,10 @@ const App = () => {
       window.localStorage.setItem('loggedBlogappUser', JSON.stringify(user))
       setUser(user)
       blogService.setToken(user.token)
-      notify(`${user.username} logged in`)
+      notify(`${user.username} logged in`, 'success')
       setTimeout(() => clear(), 5000)
     } catch (exception) {
-      notify('wrong username or password')
+      notify('wrong username or password', 'error')
       setTimeout(() => clear(), 5000)
     }
   }
@@ -64,7 +64,7 @@ const App = () => {
   const handleLogout = () => {
     window.localStorage.removeItem('loggedBlogappUser')
     setUser(null)
-    notify({ message: 'logged out', type: 'error' })
+    notify('logged out', 'error')
     setTimeout(() => clear(), 5000)
   }
 
@@ -86,8 +86,9 @@ const App = () => {
 
   return (
     <div>
-      <h2>blogs</h2>
       <Notification />
+      <br />
+      <h2>blogs</h2>
       <div>
         {user.username} logged in <button onClick={handleLogout}>logout</button>
       </div>
@@ -107,30 +108,6 @@ const App = () => {
               key={blog.id}
               blog={blog}
               currentUser={user}
-              onLike={(updatedBlog) => {
-                const blogs = queryClient.getQueryData(['blogs'])
-                queryClient.setQueryData(
-                  ['blogs'],
-                  blogs.map(b => b.id === updatedBlog.id ? updatedBlog : b)
-                )
-              }}
-              onRemove={async (blogToRemove) => {
-                if (window.confirm(`Remove blog ${blogToRemove.title} by ${blogToRemove.author}?`)) {
-                  try {
-                    await blogService.remove(blogToRemove.id)
-                    const blogs = queryClient.getQueryData(['blogs'])
-                    queryClient.setQueryData(
-                      ['blogs'],
-                      blogs.filter(b => b.id !== blogToRemove.id)
-                    )
-                    notify(`Blog '${blogToRemove.title}' removed`)
-                    setTimeout(() => clear(), 5000)
-                  } catch (error) {
-                    notify('Error removing blog')
-                    setTimeout(() => clear(), 5000)
-                  }
-                }
-              }}
             />
           ))
       )}

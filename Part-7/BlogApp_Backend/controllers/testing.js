@@ -1,9 +1,9 @@
 const testingRouter = require('express').Router()
-
 const Blog = require('../models/blog')
 const User = require('../models/user')
 const Testing = require('../models/testing')
-
+const dotenv = require('dotenv')
+dotenv.config();
 
 testingRouter.post('/reset', async (request, response) => {
   if (process.env.NODE_ENV !== 'test') {

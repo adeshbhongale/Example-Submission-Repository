@@ -9,9 +9,6 @@ if (process.env.NODE_ENV === 'test') {
   dotenv.config()
 }
 
-
-
-
 const blogsRouter = require('./controllers/blogs')
 const usersRouter = require('./controllers/users')
 const loginRouter = require('./controllers/login')
@@ -29,11 +26,11 @@ mongoose.connect(mongoUrl)
 
 app.use(express.json())
 app.use(tokenExtractor)
-app.use('/api/blogs', userExtractor, blogsRouter)
-app.use('/api/users', usersRouter)
-app.use('/api/login', loginRouter)
 if (process.env.NODE_ENV === 'test') {
   app.use('/api/testing', testingRouter)
 }
+app.use('/api/blogs', userExtractor, blogsRouter)
+app.use('/api/users', usersRouter)
+app.use('/api/login', loginRouter)
 
 module.exports = app
