@@ -10,7 +10,7 @@ console.log('Connecting to MongoDB...')
 
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => {
-    console.log('Connected to MongoDB')
+    console.log('Connected to MongoDB ✅')
   })
   .catch((error) => {
     console.log('Error connecting to MongoDB:', error.message)
@@ -21,12 +21,6 @@ const server = new ApolloServer({
   resolvers,
 })
 
-server.listen().then(({ url }) => {
-  console.log(`Server ready at port ${url}`)
+server.listen({ port: process.env.PORT || 4000 }).then(({ url }) => {
+  console.log(`🚀 Server ready at ${url}`)
 })
-
-
-
-
-
-//uncompleted
