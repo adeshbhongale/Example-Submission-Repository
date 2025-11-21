@@ -1,29 +1,14 @@
-import mongoose from 'mongoose'
-import uniqueValidator from 'mongoose-unique-validator'
+import mongoose from "mongoose"
 
 const bookSchema = new mongoose.Schema({
-  title: {
-    type: String,
-    required: true,
-    unique: true,
-    minlength: 5
-  },
+  title: { type: String, required: true },
+  published: { type: Number, required: true },
   author: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Author",
     required: true
   },
-  published: {
-    type: Number,
-    required: true
-  },
-  genres: [
-    {
-      type: String,
-      required: true
-    }
-  ]
+  genres: [{ type: String }]
 })
 
-bookSchema.plugin(uniqueValidator)
-
-export default mongoose.model('Book', bookSchema);
+export default mongoose.model("Book", bookSchema)

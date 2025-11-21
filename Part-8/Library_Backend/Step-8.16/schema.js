@@ -2,20 +2,23 @@ import { gql } from 'apollo-server'
 
 const typeDefs = gql`
   type Author {
+    id: ID!
     name: String!
     born: Int
+    bookCount: Int!
   }
 
   type Book {
+    id: ID!
     title: String!
-    author: Author!
     published: Int!
+    author: Author!
     genres: [String!]!
   }
 
   type User {
     username: String!
-    favoriteGenre: String!
+    favoriteGenre: String
     id: ID!
   }
 
@@ -26,7 +29,7 @@ const typeDefs = gql`
   type Query {
     bookCount: Int!
     authorCount: Int!
-    allBooks(author: String, genre: String): [Book!]!
+    allBooks: [Book!]!
     allAuthors: [Author!]!
     me: User
   }
@@ -34,8 +37,8 @@ const typeDefs = gql`
   type Mutation {
     addBook(
       title: String!
-      author: String!
       published: Int!
+      author: String!
       genres: [String!]!
     ): Book!
 
@@ -43,7 +46,7 @@ const typeDefs = gql`
       name: String!
       born: Int
     ): Author
-
+    
     editAuthor(
       name: String!
       setBornTo: Int!
@@ -51,7 +54,7 @@ const typeDefs = gql`
 
     createUser(
       username: String!
-      favoriteGenre: String!
+      favoriteGenre: String
     ): User
 
     login(
@@ -61,4 +64,4 @@ const typeDefs = gql`
   }
 `
 
-export default typeDefs;
+export default typeDefs

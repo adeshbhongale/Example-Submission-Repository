@@ -12,6 +12,7 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "@apollo/client": "^4.0.9",
     "@apollo/server": "^5.1.0",
     "apollo-server": "^3.13.0",
     "bcrypt": "^6.0.0",
