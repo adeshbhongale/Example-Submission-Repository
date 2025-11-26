@@ -1,136 +1,116 @@
-import { GraphQLError } from 'graphql'
-import jwt from 'jsonwebtoken'
-import Author from './models/author.js'
-import Book from './models/book.js'
-import User from './models/user.js'
-import dotenv from 'dotenv'
+import Author from "./models/author.js";
+import Book from "./models/book.js";
+import User from "./models/user.js";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import { GraphQLError } from "graphql";
+import { PubSub } from "graphql-subscriptions";
 
-dotenv.config();
+const pubsub = new PubSub();
+const JWT_SECRET = process.env.JWT_SECRET;
 
 const resolvers = {
   Query: {
-    bookCount: async () => Book.countDocuments(),
-    authorCount: async () => Author.countDocuments(),
+    bookCount: () => Book.countDocuments(),
+    authorCount: () => Author.countDocuments(),
 
     allBooks: async (root, args) => {
-      let filter = {}
+      const filter = {};
 
       if (args.author) {
-        const author = await Author.findOne({ name: args.author })
-        if (!author) return []
-        filter.author = author._id
+        const author = await Author.findOne({ name: args.author });
+        if (author) filter.author = author._id;
       }
 
       if (args.genre) {
-        filter.genres = { $in: [args.genre] }
+        filter.genres = { $in: [args.genre] };
       }
 
-      return Book.find(filter).populate('author')
+      return Book.find(filter).populate("author");
     },
 
-    allAuthors: async () => Author.find({}),
+    allAuthors: () => Author.find({}),
+    me: (root, args, context) => context.currentUser,
 
-    me: (root, args, context) => context.currentUser
+ 
+  // allAuthors: async () => {
+  //   const authors = await Author.find({})   // IMPORTANT: use await
+  //   return authors
+  // },
+
+  // allBooks: async () => {
+  //   const books = await Book.find({}).populate('author')
+  //   return books
+  // },
+
+    recommendedBooks: async (root, args, context) => {
+      if (!context.currentUser) {
+        throw new GraphQLError("Not authenticated");
+      }
+      return Book.find({
+        genres: { $in: [context.currentUser.favoriteGenre] }
+      }).populate("author");
+    }
+  },
+
+  Author: {
+    bookCount: (root) => Book.countDocuments({ author: root._id })
   },
 
   Mutation: {
-    // ---------------- CREATE USER ----------------
-    createUser: async (root, args) => {
-      try {
-        const user = new User({
-          username: args.username,
-          favoriteGenre: args.favoriteGenre
-        })
-
-        return await user.save()
-      } catch (error) {
-        throw new GraphQLError(error.message, {
-          extensions: {
-            code: "BAD_USER_INPUT",
-            invalidArgs: args.username
-          }
-        })
-      }
-    },
-
-    // ---------------- LOGIN ----------------
-    login: async (root, args) => {
-      const user = await User.findOne({ username: args.username })
-
-      const hardcodedPassword = "secret"
-
-      if (!user || args.password !== hardcodedPassword) {
-        throw new GraphQLError("wrong credentials", {
-          extensions: { code: "BAD_USER_INPUT" }
-        })
-      }
-
-      const userForToken = {
-        username: user.username,
-        id: user._id
-      }
-
-      return { value: jwt.sign(userForToken, process.env.JWT_SECRET) }
-    },
-
-    // ---------------- ADD BOOK (AUTH REQUIRED) ----------------
     addBook: async (root, args, context) => {
-      if (!context.currentUser) {
-        throw new GraphQLError("not authenticated", {
-          extensions: { code: "BAD_USER_INPUT" }
-        })
+      if (!context.currentUser) throw new GraphQLError("Not authenticated");
+
+      let author = await Author.findOne({ name: args.author });
+      if (!author) {
+        author = new Author({ name: args.author });
+        await author.save();
       }
 
-      try {
-        let author = await Author.findOne({ name: args.author })
+      let book = new Book({ ...args, author: author._id });
+      await book.save();
+      book = await book.populate("author");
 
-        if (!author) {
-          author = new Author({ name: args.author })
-          await author.save()
-        }
+      pubsub.publish("BOOK_ADDED", { bookAdded: book });
 
-        const book = new Book({
-          title: args.title,
-          published: args.published,
-          genres: args.genres,
-          author: author._id
-        })
-
-        return await book.save()
-      } catch (error) {
-        throw new GraphQLError(error.message, {
-          extensions: {
-            code: "BAD_USER_INPUT",
-            invalidArgs: args.title
-          }
-        })
-      }
+      return book;
     },
 
-    // ---------------- EDIT AUTHOR (AUTH REQUIRED) ----------------
     editAuthor: async (root, args, context) => {
-      if (!context.currentUser) {
-        throw new GraphQLError("not authenticated", {
-          extensions: { code: "BAD_USER_INPUT" }
-        })
+      if (!context.currentUser) throw new GraphQLError("Not authenticated");
+
+      const author = await Author.findOne({ name: args.name });
+      if (!author) return null;
+
+      author.born = args.setBornTo;
+      return author.save();
+    },
+
+    createUser: async (root, args) => {
+      const passwordHash = await bcrypt.hash("secret", 10);
+      const user = new User({ ...args, passwordHash });
+      return user.save();
+    },
+
+    login: async (root, args) => {
+      const user = await User.findOne({ username: args.username });
+      const correct = args.password === "secret";
+
+      if (!user || !correct) {
+        throw new GraphQLError("Invalid credentials");
       }
 
-      try {
-        const author = await Author.findOne({ name: args.name })
-        if (!author) return null
+      return {
+        value: jwt.sign({ id: user._id, username: user.username }, JWT_SECRET)
+      };
+    }
+  },
 
-        author.born = args.setBornTo
-        return author.save()
-      } catch (error) {
-        throw new GraphQLError(error.message, {
-          extensions: {
-            code: "BAD_USER_INPUT",
-            invalidArgs: args.name
-          }
-        })
-      }
+  Subscription: {
+    bookAdded: {
+      subscribe: () => pubsub.asyncIterator(["BOOK_ADDED"])
     }
   }
-}
+};
 
 export default resolvers;
